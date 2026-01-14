@@ -7,7 +7,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         XXXXXXX,  KC_1,    KC_2,    KC_3,    KC_4,    KC_5,   KC_MPLY,        KC_MPLY,  KC_6,    KC_7,    KC_8,    KC_9,   KC_0,    KC_MINS,
         QK_GESC,   KC_Q,    KC_W,    KC_F,    KC_P,    KC_B,                             KC_J,    KC_L,    KC_U,    KC_Y,   KC_SCLN, KC_BSLS,
          KC_TAB,  KC_A,    KC_R,    KC_S,    KC_T,    KC_G,                             KC_M,    KC_N,    KC_E,    KC_I,   KC_O,    KC_QUOT,
-        LCTL_T(KC_LEFT), KC_Z, KC_X,  KC_C,  KC_D,    KC_V,   KC_CAPS,        AS_TOGG,  KC_K,    KC_H,    KC_COMM, KC_DOT, KC_SLSH, RCTL_T(KC_RGHT),
+        LCTL_T(KC_LEFT), KC_Z, KC_X,  KC_C,  KC_D,    KC_V,   CW_TOGG,        AS_TOGG,  KC_K,    KC_H,    KC_COMM, KC_DOT, KC_SLSH, RCTL_T(KC_RGHT),
                               KC_LWIN, TT(2),   KC_LALT, LSFT_T(KC_SPC), RSFT_T(KC_ENT),   KC_RALT, TT(3), RWIN_T(KC_BSPC)
     ),
 
@@ -84,6 +84,14 @@ static void print_status_narrow(void) {
     bool autoshift = get_autoshift_state();
     oled_advance_page(true);
     oled_write_P(PSTR("AShft"), autoshift);
+    oled_advance_page(true);
+
+#endif
+
+#ifdef CAPS_WORD_ENABLE
+
+    bool capsword = is_caps_word_on();
+    oled_write_P(PSTR("CapWd"), capsword);
     oled_advance_page(true);
 
 #endif

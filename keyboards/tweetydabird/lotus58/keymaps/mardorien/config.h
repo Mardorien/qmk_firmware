@@ -1,0 +1,3 @@
+#define TAPPING_TOGGLE 2
+
+#define CAPS_WORD_INVERT_ON_SHIFT
