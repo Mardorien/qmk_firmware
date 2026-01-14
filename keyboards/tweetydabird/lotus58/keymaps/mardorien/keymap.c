@@ -31,7 +31,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         _______, _______, _______, _______, _______, _______, _______,        _______, _______, _______, _______, _______, _______, _______,
         _______, KC_CIRC, KC_AMPR, KC_ASTR, KC_LPRN, KC_RPRN,                          _______,   KC_F1,   KC_F2,   KC_F3,   KC_F4, _______,
         _______, KC_EXLM,   KC_AT, KC_HASH, KC_DLR,  KC_PERC,                          _______,   KC_F5,   KC_F6,   KC_F7,   KC_F8, _______,
-        _______, KC_MINS, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, _______,        _______, _______,   KC_F9,  KC_F10,  KC_F11,  KC_F12, _______,
+        _______, KC_MINS, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, KC_CAPS,        _______, _______,   KC_F9,  KC_F10,  KC_F11,  KC_F12, _______,
                                      TT(5),   TG(4), _______, _______,        _______, _______, _______, _______
     ),
 
@@ -75,9 +75,9 @@ static void print_status_narrow(void) {
     oled_write_P(PSTR("-----"), false);
 
     led_t led_usb_state = host_keyboard_led_state();
-    oled_write_ln_P(PSTR("Caps"), led_usb_state.caps_lock);
+    oled_write_ln_P(PSTR(" Caps"), led_usb_state.caps_lock);
     oled_write_P(PSTR("\n"), false);
-    oled_write_ln_P(PSTR("Num"), led_usb_state.num_lock);
+    oled_write_ln_P(PSTR("  Num"), led_usb_state.num_lock);
 
 #ifdef AUTO_SHIFT_ENABLE
 
@@ -103,7 +103,7 @@ static void print_layers(void) {
     // Create OLED content
     oled_write_P(PSTR("\n"), false);
     oled_write_P(PSTR(""), false);
-    oled_write_P(PSTR("Lotus -58-"), false);
+    oled_write_P(PSTR("Lotus-58-"), false);
     oled_write_P(PSTR("-----"), false);
 
     // Print Layers
