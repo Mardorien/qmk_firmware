@@ -75,14 +75,13 @@ static void print_status_narrow(void) {
     oled_write_P(PSTR("-----"), false);
 
     led_t led_usb_state = host_keyboard_led_state();
-    oled_write_ln_P(PSTR(" Caps"), led_usb_state.caps_lock);
-    oled_write_ln_P(PSTR("  Num"), led_usb_state.num_lock);
+    oled_write_P(PSTR(" Caps"), led_usb_state.caps_lock);
+    oled_write_P(PSTR("  Num"), led_usb_state.num_lock);
 
 #ifdef AUTO_SHIFT_ENABLE
 
     bool autoshift = get_autoshift_state();
     oled_write_P(PSTR("AShft"), autoshift);
-    oled_advance_page(true);
 
 #endif
 
@@ -90,7 +89,7 @@ static void print_status_narrow(void) {
 
     bool capsword = is_caps_word_on();
     oled_write_P(PSTR("CapWd"), capsword);
-    oled_advance_page(true);
+    oled_write_P(PSTR("-----"), false);
 
 #endif
 
@@ -107,12 +106,10 @@ static void print_layers(void) {
     // Print Layers
     oled_write_P(PSTR("Layer"), false);
     if (default_layer_state == 1) {
-        oled_write_P(PSTR("-Base"), true);
-        oled_write_P(PSTR("-Game"), false);
+        oled_write_P(PSTR("-Base"), false);
 
     } else {
-        oled_write_P(PSTR("-Base"), false);
-        oled_write_P(PSTR("-Game"), true);
+        oled_write_P(PSTR("-Game"), false);
     }
     oled_write_P(PSTR("|Num "), IS_LAYER_ON(2));
     oled_write_P(PSTR("|Symb"), IS_LAYER_ON(3));
