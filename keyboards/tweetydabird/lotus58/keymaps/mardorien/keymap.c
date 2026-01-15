@@ -76,13 +76,11 @@ static void print_status_narrow(void) {
 
     led_t led_usb_state = host_keyboard_led_state();
     oled_write_ln_P(PSTR(" Caps"), led_usb_state.caps_lock);
-    oled_write_P(PSTR("\n"), false);
     oled_write_ln_P(PSTR("  Num"), led_usb_state.num_lock);
 
 #ifdef AUTO_SHIFT_ENABLE
 
     bool autoshift = get_autoshift_state();
-    oled_advance_page(true);
     oled_write_P(PSTR("AShft"), autoshift);
     oled_advance_page(true);
 
@@ -103,7 +101,7 @@ static void print_layers(void) {
     // Create OLED content
     oled_write_P(PSTR("\n"), false);
     oled_write_P(PSTR(""), false);
-    oled_write_P(PSTR("Lotus-58-"), false);
+    oled_write_P(PSTR("Lotus-58- "), false);
     oled_write_P(PSTR("-----"), false);
 
     // Print Layers
