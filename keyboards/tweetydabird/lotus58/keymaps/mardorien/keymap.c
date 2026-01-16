@@ -67,12 +67,17 @@ const uint16_t PROGMEM encoder_map[][NUM_ENCODERS][NUM_DIRECTIONS] = {
 
 #ifdef OLED_ENABLE
 
-static void print_status_narrow(void) {
-    // Create OLED content
+static void header_details(void) {
+    //Create Header
     oled_write_P(PSTR("\n"), false);
     oled_write_P(PSTR(""), false);
-    oled_write_P(PSTR("Lotus -58-"), false);
+    oled_write_P(PSTR("Lotus"), false);
+    oled_write_P("-58- ", false);
     oled_write_P(PSTR("-----"), false);
+
+}
+
+static void print_status_narrow(void) {
 
     led_t led_usb_state = host_keyboard_led_state();
     oled_write_P(PSTR(" Caps"), led_usb_state.caps_lock);
@@ -93,15 +98,9 @@ static void print_status_narrow(void) {
 
 #endif
 
-
 }
 
 static void print_layers(void) {
-    // Create OLED content
-    oled_write_P(PSTR("\n"), false);
-    oled_write_P(PSTR(""), false);
-    oled_write_P(PSTR("Lotus-58- "), false);
-    oled_write_P(PSTR("-----"), false);
 
     // Print Layers
     oled_write_P(PSTR("Layer"), false);
@@ -120,6 +119,7 @@ static void print_layers(void) {
 
 
 bool oled_task_user(void) {
+    header_details();
     if (!is_keyboard_left()) {
         // Render the keyboard status
         print_status_narrow();
