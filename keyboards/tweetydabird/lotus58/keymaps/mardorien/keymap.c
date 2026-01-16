@@ -105,10 +105,10 @@ static void print_layers(void) {
     // Print Layers
     oled_write_P(PSTR("Layer"), false);
     if (default_layer_state == 1) {
-        oled_write_P(PSTR("-Base"), false);
+        oled_write_P(PSTR("-Base"), true);
 
     } else {
-        oled_write_P(PSTR("-Game"), false);
+        oled_write_P(PSTR("-Game"), true);
     }
     oled_write_P(PSTR("|Num "), IS_LAYER_ON(2));
     oled_write_P(PSTR("|Symb"), IS_LAYER_ON(3));
