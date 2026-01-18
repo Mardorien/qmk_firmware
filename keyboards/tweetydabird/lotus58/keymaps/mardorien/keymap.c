@@ -179,6 +179,22 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     return true;
 }
 
+#if defined(HOLD_ON_OTHER_KEY_PRESS_PER_KEY)
+
+bool get_hold_on_other_key_press(uint16_t keycode, keyrecord_t *record) {
+    switch (keycode) {
+        case LCTL_T(KC_LEFT):
+            // Immediately select the hold action when another key is pressed.
+            return true;
+        default:
+            // Do not select the hold action when another key is pressed.
+            return false;
+    }
+}
+
+#endif
+
+
 #if defined(OS_DETECTION_ENABLE)
 
 bool process_detected_host_os_kb(os_variant_t detected_os) {
