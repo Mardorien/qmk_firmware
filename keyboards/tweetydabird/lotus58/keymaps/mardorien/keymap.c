@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 // Major adjustments and additions by Mardorien (bsky: @mxezrirobyn.net)
 #include QMK_KEYBOARD_H
-#define SFTLLCK LSFT_T(KC_0)
-#define RALTLCK ALGR_T(KC_0)
+#define LALTLCK LSFT_T(KC_0)
+#define RALTLCK ALT_T(KC_0)
 
 #if defined(TAP_DANCE_ENABLE)
 // Tap Dance declarations
@@ -79,7 +79,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
          KC_TAB, KC_LPRN, KC_UP,   KC_RPRN, KC_CIRC, XXXXXXX,                          UM(GBP), KC_KP_7, KC_KP_8, KC_KP_9, KC_PDOT, XXXXXXX,
          KC_DEL, KC_LEFT, KC_DOWN, KC_RIGHT,KC_LBRC, KC_RBRC,                          KC_AMPR, KC_KP_4, KC_KP_5, KC_KP_6, KC_COLN, XXXXXXX,
         _______, KC_PMNS, KC_PAST, KC_PPLS, KC_PSLS, KC_EQL,   KC_NUM,        _______, KC_KP_0, KC_KP_1, KC_KP_2, KC_KP_3, KC_DLR,  _______,
-                                   _______, _______, _______, SFTLLCK,        _______, RALTLCK, _______, _______
+                                   _______, _______, RALTLCK, _______,        _______, RALTLCK, _______, _______
     ),
 
     // Numline symbols & funcs
@@ -88,7 +88,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         _______, KC_CIRC, KC_AMPR, KC_ASTR, KC_LPRN, KC_RPRN,                          _______,   KC_F1,   KC_F2,   KC_F3,   KC_F4, _______,
         _______, KC_EXLM,   KC_AT, KC_HASH, KC_DLR,  KC_PERC,                          _______,   KC_F5,   KC_F6,   KC_F7,   KC_F8, _______,
         _______, KC_MINS, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, KC_CAPS,        _______, _______,   KC_F9,  KC_F10,  KC_F11,  KC_F12, _______,
-                                    OSL(5), _______, _______, SFTLLCK,        _______, RALTLCK, _______, _______
+                                    OSL(5), _______, RALTLCK, _______,        _______, RALTLCK, _______, _______
     ),
 
     // System functions
@@ -155,7 +155,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 return false;
                 break;
             }
-        case SFTLLCK:
+        case LALTLCK:
             if (record->tap.count) {
                 if (record->event.pressed) {
                     // Toggle the lock on the highest layer.
