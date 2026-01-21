@@ -5,7 +5,7 @@
 #define LALTLCK LSFT_T(KC_0)
 #define RALTLCK ALT_T(KC_0)
 
-#if defined(TAP_DANCE_ENABLE)
+#ifdef TAP_DANCE_ENABLE
 // Tap Dance declarations
 enum {
     TD_ESC_GV,
@@ -16,9 +16,10 @@ tap_dance_action_t tap_dance_actions[] = {
     // Tap once for Escape, twice for Caps Lock
     [TD_ESC_GV] = ACTION_TAP_DANCE_DOUBLE(KC_ESC, KC_GRV),
 };
+
 #endif
 
-#if defined(UNICODEMAP_ENABLE)
+#ifdef UNICODEMAP_ENABLE
 
 enum unicode_names {
     GBP,
@@ -30,7 +31,7 @@ const uint32_t PROGMEM unicode_map[] = {
 
 #endif
 
-#if defined(COMBO_ENABLE)
+#ifdef COMBO_ENABLE
 
 enum combo_events {
   COMBO_GBP,
@@ -101,15 +102,17 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     )
 };
 
-#if defined(ENCODER_MAP_ENABLE)
+#ifdef ENCODER_MAP_ENABLE
+
 const uint16_t PROGMEM encoder_map[][NUM_ENCODERS][NUM_DIRECTIONS] = {
     [0] = { ENCODER_CCW_CW(MS_WHLR, MS_WHLL), ENCODER_CCW_CW(MS_WHLR, MS_WHLL) },
     [1] = { ENCODER_CCW_CW(MS_WHLR, MS_WHLL), ENCODER_CCW_CW(MS_WHLR, MS_WHLL) },
     [2] = { ENCODER_CCW_CW(MS_WHLD, MS_WHLU), ENCODER_CCW_CW(MS_WHLD, MS_WHLU) },
     [3] = { ENCODER_CCW_CW(MS_WHLD, MS_WHLU), ENCODER_CCW_CW(MS_WHLD, MS_WHLU) },
     [4] = { ENCODER_CCW_CW(KC_TRNS, KC_TRNS), ENCODER_CCW_CW(KC_TRNS, KC_TRNS) },
-    [5] = { ENCODER_CCW_CW(PB_32, PB_31), ENCODER_CCW_CW(PB_32, PB_31) }
+    [5] = { ENCODER_CCW_CW(PB_32,   PB_31),   ENCODER_CCW_CW(PB_32,   PB_31)   }
 };
+
 #endif
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
@@ -179,7 +182,8 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     return true;
 }
 
-#if defined(HOLD_ON_OTHER_KEY_PRESS_PER_KEY)
+/* Added so CTRL+(key) doesn't require a delay (i.e. ) */
+#ifdef HOLD_ON_OTHER_KEY_PRESS_PER_KEY
 
 bool get_hold_on_other_key_press(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
@@ -194,8 +198,9 @@ bool get_hold_on_other_key_press(uint16_t keycode, keyrecord_t *record) {
 
 #endif
 
-
-#if defined(OS_DETECTION_ENABLE)
+/* Detects OS of compulter and changes Unicode selection mode. */
+#ifdef OS_DETECTION_ENABLE
+#ifdef UNICODE_SELECTED_MODES
 
 bool process_detected_host_os_kb(os_variant_t detected_os) {
     if (!process_detected_host_os_user(detected_os)) {
@@ -222,8 +227,11 @@ bool process_detected_host_os_kb(os_variant_t detected_os) {
 }
 
 #endif
+#endif
 
 #ifdef OLED_ENABLE
+
+/* Creates keyboard name on OLEDs */
 
 static void header_details(void) {
     //Create Header
@@ -252,9 +260,11 @@ static void print_status_narrow(void) {
 
     bool capsword = is_caps_word_on();
     oled_write_P(PSTR("CapWd"), capsword);
-    oled_write_P(PSTR("-----"), false);
+
 
 #endif
+
+    oled_write_P(PSTR("-----"), false);
 
 }
 
@@ -277,6 +287,8 @@ static void print_layers(void) {
     oled_write_P(PSTR("|"), IS_LAYER_ON(5));
     oled_write_P(PSTR("Syst"), is_layer_locked(5));
     oled_write_P(PSTR("     "), false);
+
+    /* Chooses ASCII art based on detected default layer status */
         if (default_layer_state == 1) {
             oled_write_P(PSTR(" / \\ "), false);
             oled_write_P(PSTR("|0 0|"), false);
@@ -300,10 +312,8 @@ static void print_layers(void) {
 bool oled_task_user(void) {
     header_details();
     if (!is_keyboard_left()) {
-        // Render the keyboard status
         print_status_narrow();
     } else {
-        // Shows layer status
         print_layers();
     }
     return false;
