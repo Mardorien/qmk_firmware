@@ -6,3 +6,6 @@
 #define UNICODE_SELECTED_MODES UNICODE_MODE_LINUX, UNICODE_MODE_WINDOWS
 #define MASTER_RIGHT
 #define HOLD_ON_OTHER_KEY_PRESS_PER_KEY
+#ifdef OLED_ENABLE
+#   define OLED_FONT_H "keyboards/tweetydabird/lotus58/keymaps/mardorien/glcdfont.c"
+#endif

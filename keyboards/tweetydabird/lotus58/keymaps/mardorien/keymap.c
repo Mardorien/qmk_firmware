@@ -231,16 +231,33 @@ bool process_detected_host_os_kb(os_variant_t detected_os) {
 
 #ifdef OLED_ENABLE
 
+/* Creates custom spacer */
+
+static void spacer_line(void) {
+    static const char PROGMEM spacer[] = {
+        0x86, 0x86, 0x86, 0x86, 0x86, 0
+    };
+
+    oled_write_P(spacer, false);
+}
+
 /* Creates keyboard name on OLEDs */
 
 static void header_details(void) {
-    //Create Header
+    //Create Header custom logo
+    static const char PROGMEM lotus_header[] = {
+        0x90, 0x91, 0x92, 0x93, 0x94, 0
+    };
+    oled_write_P(lotus_header, false);
+
+    //Create Header Text Only
+    /*
     oled_write_P(PSTR("\n"), false);
     oled_write_P(PSTR(""), false);
     oled_write_P(PSTR("Lotus"), false);
     oled_write_P("-58- ", false);
     oled_write_P(PSTR("-----"), false);
-
+    */
 }
 
 static void print_status_narrow(void) {
@@ -261,24 +278,25 @@ static void print_status_narrow(void) {
     bool capsword = is_caps_word_on();
     oled_write_P(PSTR("CapWd"), capsword);
 
-
 #endif
 
-    oled_write_P(PSTR("-----"), false);
+    spacer_line();
 
 }
 
 static void print_layers(void) {
 
+
     // Print Layers
     oled_write_P(PSTR("Layer"), false);
     // Base layer printing
+    oled_write_P("-",true);
     if (default_layer_state == 1) {
-        oled_write_P(PSTR("-Linx"), true);
+        oled_write_P(PSTR("Linx"), true);
     } else if (default_layer_state == 2) {
-        oled_write_P(PSTR("-Wind"), true);
+        oled_write_P(PSTR("Wind"), true);
     } else {
-        oled_write_P(PSTR("-Game"), true);
+        oled_write_P(PSTR("Game"), true);
     }
     oled_write_P(PSTR("|"), IS_LAYER_ON(3));
     oled_write_P(PSTR("Numb"), is_layer_locked(3));
@@ -286,7 +304,7 @@ static void print_layers(void) {
     oled_write_P(PSTR("Symb"), is_layer_locked(4));
     oled_write_P(PSTR("|"), IS_LAYER_ON(5));
     oled_write_P(PSTR("Syst"), is_layer_locked(5));
-    oled_write_P(PSTR("     "), false);
+    spacer_line();
 
     /* Chooses ASCII art based on detected default layer status */
         if (default_layer_state == 1) {
@@ -298,14 +316,13 @@ static void print_layers(void) {
             oled_write_P(PSTR("_____"), false);
             oled_write_P(PSTR("|_|_|"), false);
             oled_write_P(PSTR("|_|_|"), false);
-            oled_write_P(PSTR("     "), false);
             oled_write_P(PSTR(" Win "), false);
+            oled_advance_page(true);
         } else {
             oled_write_P(PSTR("-   +"), false);
             oled_write_P(PSTR(" (Y) "), false);
             oled_write_P(PSTR("(X|A)"), false);
             oled_write_P(PSTR(" (B) "), false);
-            oled_write_P(PSTR("     "), false);
         }
 }
 
