@@ -2,8 +2,12 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 // Major adjustments and additions by Mardorien (bsky: @mxezrirobyn.net)
 #include QMK_KEYBOARD_H
+#include "transactions.h"
 #define LALTLCK LSFT_T(KC_0)
 #define RALTLCK ALT_T(KC_0)
+#define OLED_DN LSFT_T(KC_1)
+#define OLED_UP ALT_T(KC_1)
+
 
 #ifdef TAP_DANCE_ENABLE
 // Tap Dance declarations
@@ -54,7 +58,6 @@ combo_t key_combos[] = {
 
 #endif
 
-
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     // Linux
     [_LINUX_BASE] = LAYOUT(
@@ -104,10 +107,10 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     // System functions
     [_SYSTEM] = LAYOUT(
         XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, _______,        _______, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
-        QK_BOOT, XXXXXXX, XXXXXXX, XXXXXXX, NK_TOGG, AC_TOGG,                                  XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
-        QK_RBT,  XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, KC_CAPS,                                  XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
+        QK_BOOT, XXXXXXX, XXXXXXX, OLED_UP, NK_TOGG, AC_TOGG,                                  XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
+        QK_RBT,  XXXXXXX, XXXXXXX, OLED_DN, XXXXXXX, KC_CAPS,                                  XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
         EE_CLR,  XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,        XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
-                                               _______, _______, _______, _______,        _______, _______, _______, _______
+                                               _______, _______, _______, _______,        _______, RALTLCK, _______, _______
     )
 };
 
@@ -185,6 +188,41 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 return false;
             }
             break;
+        case OLED_UP:
+            if (record->tap.count) {
+                if (record->event.pressed) {
+                    uint8_t oled_brightness = oled_get_brightness();
+                    if (!is_oled_on()) {
+                        oled_on();
+                    }
+                    uint8_t new_brightness;
+                    if (oled_brightness >= 255) {
+                        new_brightness = 255;
+                    } else {
+                        new_brightness = oled_brightness + 17;
+                    }
+
+                    oled_set_brightness(new_brightness);
+                }
+            }
+            break;
+        case OLED_DN:
+            if (record->tap.count) {
+                if (record->event.pressed) {
+                    uint8_t oled_brightness = oled_get_brightness();
+                    if (!is_oled_on()) {
+                        oled_on();
+                    }
+                    uint8_t new_brightness;
+                    if (oled_brightness <= 5) {
+                        new_brightness = 0;
+                    } else {
+                        new_brightness = oled_brightness - 17;
+                    }
+
+                    oled_set_brightness(new_brightness);
+                }
+            }
         default:
             return true;
     }
@@ -304,6 +342,44 @@ static void print_layers(void) {
     oled_write_P(PSTR("|Syst"), IS_LAYER_ON(_SYSTEM));
     spacer_line();
 }
+
+
+/* This section defines the transfer of OLED brightness to seconary side. */
+#ifdef SPLIT_TRANSACTION_IDS_USER
+
+typedef struct _master_to_slave_t {
+    uint8_t bright_data_m2s;
+} master_to_slave_t;
+
+typedef struct _slave_to_master_t {
+    uint8_t bright_data_s2m;
+} slave_to_master_t;
+
+void user_sync_a_slave_handler(uint8_t in_buflen, const void* in_data, uint8_t out_buflen, void* out_data) {
+    const master_to_slave_t *m2s = (const master_to_slave_t*)in_data;
+    slave_to_master_t *s2m = (slave_to_master_t*)out_data;
+    s2m->bright_data_s2m = m2s->bright_data_m2s;
+    oled_set_brightness(m2s->bright_data_m2s);
+}
+
+void keyboard_post_init_user(void) {
+    transaction_register_rpc(OLED_BRIGHTNESS_SYNC, user_sync_a_slave_handler);
+}
+
+void housekeeping_task_user(void) {
+    if (is_keyboard_master()) {
+        // Interact with slave every 500ms
+        static uint32_t last_sync = 0;
+        if (timer_elapsed32(last_sync) > 500) {
+            master_to_slave_t m2s = {oled_get_brightness()};
+            if(transaction_rpc_send(OLED_BRIGHTNESS_SYNC, sizeof(m2s), &m2s)) {
+                last_sync = timer_read32();
+            }
+        }
+    }
+}
+
+#endif
 
 bool oled_task_user(void) {
     header_details();

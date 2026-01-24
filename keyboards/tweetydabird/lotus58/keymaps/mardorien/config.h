@@ -9,3 +9,5 @@
 #ifdef OLED_ENABLE
 #   define OLED_FONT_H "keyboards/tweetydabird/lotus58/keymaps/mardorien/glcdfont.c"
 #endif
+
+#define SPLIT_TRANSACTION_IDS_USER OLED_BRIGHTNESS_SYNC
