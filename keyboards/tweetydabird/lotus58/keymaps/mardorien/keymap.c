@@ -9,26 +9,23 @@
 #define OLED_UP ALT_T(KC_1)
 #define is_keyboard_primary() is_keyboard_master()
 
+enum layer_names {
+    _LINUX_BASE,
+    _WINDOWS_BASE,
+    _GAME_BASE,
+    _NUMPAD,
+    _DIRN,
+    _FUNC,
+    _SYMB,
+    _SYSTEM,
+};
 
 #ifdef TAP_DANCE_ENABLE
 // Tap Dance declarations
 enum {
     TD_ESC_GV,
-};
-
-enum layer_names {
-    _LINUX_BASE,
-    _WINDOWS_BASE,
-    _GAME_BASE,
-    _NUMPAD_DIRN,
-    _SYMB_FUNC,
-    _SYSTEM,
-};
-
-// Tap Dance definitions
-tap_dance_action_t tap_dance_actions[] = {
-    // Tap once for Escape, twice for Caps Lock
-    [TD_ESC_GV] = ACTION_TAP_DANCE_DOUBLE(KC_ESC, KC_GRV),
+    LEFTLYR_TAP,
+    RGHTLYR_TAP
 };
 
 #endif
@@ -59,6 +56,33 @@ combo_t key_combos[] = {
 
 #endif
 
+/* LAYER TAP DANCE ENABLE
+ *
+ * This defines all the functions needed to do the advanced layer dance. */
+typedef enum {
+    TD_NONE,
+    TD_UNKNOWN,
+    TD_SINGLE_TAP,
+    TD_SINGLE_HOLD,
+    TD_DOUBLE_TAP,
+    TD_DOUBLE_HOLD,
+    TD_DOUBLE_SINGLE_TAP, // Send two single taps
+    TD_TRIPLE_TAP,
+    TD_TRIPLE_HOLD
+} td_state_t;
+
+typedef struct {
+    bool is_press_action;
+    td_state_t state;
+} td_tap_t;
+
+td_state_t cur_dance(tap_dance_state_t *state);
+
+// For the x tap dance. Put it here so it can be used in any keymap
+void x_finished(tap_dance_state_t *state, void *user_data);
+void x_reset(tap_dance_state_t *state, void *user_data);
+
+
 static bool capsword;
 static bool ashift;
 
@@ -69,7 +93,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     TD(TD_ESC_GV),KC_Q,    KC_W,    KC_F,    KC_P,    KC_B,                                     KC_J,    KC_L,    KC_U,    KC_Y,   KC_SCLN, KC_BSLS,
         KC_TAB,   KC_A,    KC_R,    KC_S,    KC_T,    KC_G,                                     KC_M,    KC_N,    KC_E,    KC_I,   KC_O,    KC_QUOT,
         LCTL_T(KC_LEFT), KC_Z, KC_X,  KC_C,  KC_D,    KC_V,   CW_TOGG,        AS_TOGG,  KC_K,    KC_H,    KC_COMM, KC_DOT, KC_SLSH, RCTL_T(KC_RGHT),
-                                    KC_LGUI, MO(_NUMPAD_DIRN),   KC_LALT, LSFT_T(KC_SPC), RSFT_T(KC_ENT),   KC_RALT, MO(_SYMB_FUNC), RGUI_T(KC_BSPC)
+                                    KC_LGUI, TD(LEFTLYR_TAP),   KC_LALT, LSFT_T(KC_SPC), RSFT_T(KC_ENT),KC_RALT, TD(RGHTLYR_TAP), RGUI_T(KC_BSPC)
     ),
 
     // Windows
@@ -77,8 +101,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         XXXXXXX,  KC_1,    KC_2,    KC_3,    KC_4,    KC_5,   KC_MPLY,        KC_MPLY,  KC_6,    KC_7,    KC_8,    KC_9,   KC_0,    KC_MINS,
         QK_GESC,  KC_Q,    KC_W,    KC_F,    KC_P,    KC_B,                                     KC_J,    KC_L,    KC_U,    KC_Y,   KC_SCLN, KC_BSLS,
         KC_TAB,   KC_A,    KC_R,    KC_S,    KC_T,    KC_G,                                     KC_M,    KC_N,    KC_E,    KC_I,   KC_O,    KC_QUOT,
-        LCTL_T(KC_LEFT), KC_Z, KC_X,  KC_C,  KC_D,    KC_V,   CW_TOGG,        AS_TOGG,  KC_K,    KC_H,    KC_COMM, KC_DOT, KC_SLSH, RCTL_T(KC_RGHT),
-                                    KC_LWIN, MO(_NUMPAD_DIRN),   KC_LALT, LSFT_T(KC_SPC), RSFT_T(KC_ENT),   KC_RALT, MO(_SYMB_FUNC), RWIN_T(KC_BSPC)
+        LCTL_T(KC_LEFT), KC_Z, KC_X, KC_C,   KC_D,    KC_V,   CW_TOGG,        AS_TOGG,  KC_K,    KC_H,    KC_COMM, KC_DOT, KC_SLSH, RCTL_T(KC_RGHT),
+                                    KC_LWIN, TD(LEFTLYR_TAP),   KC_LALT, LSFT_T(KC_SPC), RSFT_T(KC_ENT),   KC_RALT, TD(RGHTLYR_TAP), RWIN_T(KC_BSPC)
     ),
 
     // Game
@@ -87,25 +111,41 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         QK_GESC,   KC_T,    KC_Q,    KC_W,    KC_E,    KC_R,                                   KC_Y,    KC_U,    KC_I,    KC_O,    KC_P,    KC_BSLS,
         KC_TAB,    KC_G,    KC_A,    KC_S,    KC_D,    KC_F,                                   KC_H,    KC_J,    KC_K,    KC_L,    KC_SCLN, KC_QUOT,
         LCTL_T(KC_LEFT), KC_Z, KC_X, KC_C,    KC_V,    KC_B,  KC_CAPS,        AS_TOGG, KC_N,    KC_M,    KC_COMM, KC_DOT,  KC_SLSH, RCTL_T(KC_RGHT),
-                                     KC_LGUI, MO(_NUMPAD_DIRN),  KC_LALT, LSFT_T(KC_SPC), RSFT_T(KC_ENT),   KC_RALT, MO(_SYMB_FUNC), RGUI_T(KC_BSPC)
+                                     KC_LGUI, TD(LEFTLYR_TAP),  KC_LALT, LSFT_T(KC_SPC), RSFT_T(KC_ENT),   KC_RALT, TD(RGHTLYR_TAP), RGUI_T(KC_BSPC)
     ),
 
     // Numpad & arrow keys
-    [_NUMPAD_DIRN] = LAYOUT(
-        _______, KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,   _______,        _______, KC_F6,   KC_F7,   KC_F8,   KC_F9,   KC_F10,  XXXXXXX,
-        KC_TAB,  KC_LPRN, KC_UP,   KC_RPRN, KC_CIRC, XXXXXXX,                                  UM(GBP), KC_KP_7, KC_KP_8, KC_KP_9, KC_PDOT, XXXXXXX,
-        KC_DEL,  KC_LEFT, KC_DOWN, KC_RIGHT,KC_LBRC, KC_RBRC,                                  KC_AMPR, KC_KP_4, KC_KP_5, KC_KP_6, KC_COLN, XXXXXXX,
-        _______, KC_PMNS, KC_PAST, KC_PPLS, KC_PSLS, KC_EQL,   KC_NUM,        _______, KC_KP_0, KC_KP_1, KC_KP_2, KC_KP_3, KC_DLR,  _______,
-                                                _______, _______, _______, _______,       _______, RALTLCK, _______, _______
+    [_NUMPAD] = LAYOUT(
+        _______, _______, _______, _______, _______, _______, _______,        _______, _______, _______, _______, _______, _______, _______,
+        _______, _______, _______, _______, _______, _______,                                  UM(GBP), KC_KP_7, KC_KP_8, KC_KP_9, KC_PDOT, _______,
+        _______, _______, _______, _______, _______, _______,                                  KC_AMPR, KC_KP_4, KC_KP_5, KC_KP_6, KC_COLN, _______,
+        _______, _______, _______, _______, _______, _______, KC_NUM,         _______, KC_KP_0, KC_KP_1, KC_KP_2, KC_KP_3, KC_DLR,  _______,
+                                               _______, _______, _______, _______,        _______, RALTLCK, _______, _______
+    ),
+
+    [_DIRN] = LAYOUT(
+        _______, _______, _______, _______, _______, _______, _______,        _______, _______, _______, _______, _______, _______, _______,
+        KC_TAB,  KC_LPRN, KC_UP,   KC_RPRN, KC_CIRC, XXXXXXX,                                  _______, _______, _______, _______, _______, _______,
+        KC_DEL,  KC_LEFT, KC_DOWN, KC_RIGHT,KC_LBRC, KC_RBRC,                                  _______, _______, _______, _______, _______, _______,
+        _______, KC_PMNS, KC_PAST, KC_PPLS, KC_PSLS, KC_EQL,  _______,        _______, _______, _______, _______, _______, _______,  _______,
+                                               _______, _______, LALTLCK, _______,        _______, _______, _______, _______
     ),
 
     // Numline symbols & funcs
-    [_SYMB_FUNC] = LAYOUT(
+    [_FUNC] = LAYOUT(
         _______, _______, _______, _______, _______, _______, _______,        _______, _______, _______, _______, _______, _______, _______,
-        _______, KC_CIRC, KC_AMPR, KC_ASTR, KC_LPRN, KC_RPRN,                                  _______, KC_F1,   KC_F2,   KC_F3,   KC_F4, _______,
-        _______, KC_EXLM, KC_AT,   KC_HASH, KC_DLR,  KC_PERC,                                  _______, KC_F5,   KC_F6,   KC_F7,   KC_F8, _______,
-        _______, KC_MINS, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, KC_CAPS,        _______, _______, KC_F9,   KC_F10,  KC_F11,  KC_F12, _______,
-                                          OSL(_SYSTEM), _______, RALTLCK, _______,        _______, _______, _______, _______
+        _______, _______, _______, _______, _______, _______,                                  _______, KC_F1,   KC_F2,   KC_F3,   KC_F4, _______,
+        _______, _______, _______, _______, _______, _______,                                  _______, KC_F5,   KC_F6,   KC_F7,   KC_F8, _______,
+        _______, _______, _______, _______, _______, _______, KC_CAPS,        _______, _______, KC_F9,   KC_F10,  KC_F11,  KC_F12, _______,
+                                               _______, _______, LALTLCK, _______,        _______, _______, _______, _______
+    ),
+
+    [_SYMB] = LAYOUT(
+        _______, _______, _______, _______, _______, _______, _______,        _______, _______, _______, _______, _______, _______, _______,
+        _______, KC_CIRC, KC_AMPR, KC_ASTR, KC_LPRN, KC_RPRN,                                  _______, _______, _______, _______, _______, _______,
+        _______, KC_EXLM, KC_AT,   KC_HASH, KC_DLR,  KC_PERC,                                  _______, _______, _______, _______, _______, _______,
+        _______, KC_MINS, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, KC_CAPS,        _______, _______, _______, _______, _______, _______, _______,
+                                          OSL(_SYSTEM), _______, LALTLCK, _______,        _______, _______, _______, _______
     ),
 
     // System functions
@@ -121,12 +161,14 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 #ifdef ENCODER_MAP_ENABLE
 
 const uint16_t PROGMEM encoder_map[][NUM_ENCODERS][NUM_DIRECTIONS] = {
-    [0] = { ENCODER_CCW_CW(MS_WHLR, MS_WHLL), ENCODER_CCW_CW(MS_WHLR, MS_WHLL) },
-    [1] = { ENCODER_CCW_CW(MS_WHLR, MS_WHLL), ENCODER_CCW_CW(MS_WHLR, MS_WHLL) },
-    [2] = { ENCODER_CCW_CW(MS_WHLD, MS_WHLU), ENCODER_CCW_CW(MS_WHLD, MS_WHLU) },
-    [3] = { ENCODER_CCW_CW(MS_WHLD, MS_WHLU), ENCODER_CCW_CW(MS_WHLD, MS_WHLU) },
-    [4] = { ENCODER_CCW_CW(KC_TRNS, KC_TRNS), ENCODER_CCW_CW(KC_TRNS, KC_TRNS) },
-    [5] = { ENCODER_CCW_CW(PB_32,   PB_31),   ENCODER_CCW_CW(PB_32,   PB_31)   }
+    [_LINUX_BASE]     = { ENCODER_CCW_CW(MS_WHLR, MS_WHLL), ENCODER_CCW_CW(MS_WHLR, MS_WHLL) },
+    [_WINDOWS_BASE]   = { ENCODER_CCW_CW(MS_WHLR, MS_WHLL), ENCODER_CCW_CW(MS_WHLR, MS_WHLL) },
+    [_GAME_BASE]      = { ENCODER_CCW_CW(MS_WHLD, MS_WHLU), ENCODER_CCW_CW(MS_WHLD, MS_WHLU) },
+    [_NUMPAD]         = { ENCODER_CCW_CW(MS_WHLD, MS_WHLU), ENCODER_CCW_CW(MS_WHLD, MS_WHLU) },
+    [_DIRN]           = { ENCODER_CCW_CW(MS_WHLD, MS_WHLU), ENCODER_CCW_CW(MS_WHLD, MS_WHLU) },
+    [_FUNC]           = { ENCODER_CCW_CW(KC_TRNS, KC_TRNS), ENCODER_CCW_CW(KC_TRNS, KC_TRNS) },
+    [_SYMB]           = { ENCODER_CCW_CW(KC_TRNS, KC_TRNS), ENCODER_CCW_CW(KC_TRNS, KC_TRNS) },
+    [_SYSTEM]         = { ENCODER_CCW_CW(PB_32,   PB_31),   ENCODER_CCW_CW(PB_32,   PB_31)   }
 };
 
 #endif
@@ -351,9 +393,11 @@ static void print_layers(void) {
     } else if (default_layer_state == layers.game_def) {
         oled_write_P(PSTR("Game"), true);
     }
-    oled_write_P(PSTR("|Numb"), IS_LAYER_ON(_NUMPAD_DIRN));
-    oled_write_P(PSTR("|Symb"), IS_LAYER_ON(_SYMB_FUNC));
-    oled_write_P(PSTR("|Syst"), IS_LAYER_ON(_SYSTEM));
+    oled_write_P(PSTR(">Numb"), IS_LAYER_ON(_NUMPAD));
+    oled_write_P(PSTR("Dirn<"), IS_LAYER_ON(_DIRN));
+    oled_write_P(PSTR(">Func"), IS_LAYER_ON(_FUNC));
+    oled_write_P(PSTR("Symb<"), IS_LAYER_ON(_SYMB));
+    oled_write_P(PSTR(">Sys<"), IS_LAYER_ON(_SYSTEM));
     spacer_line();
 }
 
@@ -409,3 +453,125 @@ bool oled_task_user(void) {
 }
 
 #endif
+
+/* LAYER TAP DANCE FUNCTIONS
+ *
+ * This is the functions to set up layer tapdances. */
+
+td_state_t cur_dance(tap_dance_state_t *state) {
+    if (state->count == 1) {
+        if (state->interrupted || !state->pressed) return TD_SINGLE_TAP;
+        else return TD_SINGLE_HOLD;
+    } else if (state->count == 2) {
+        if (state->pressed) return TD_DOUBLE_HOLD;
+        else return TD_DOUBLE_TAP;
+    }
+    else return TD_UNKNOWN;
+}
+
+static td_tap_t leftlyrtap_state = {
+    .is_press_action = true,
+    .state = TD_NONE
+};
+
+static td_tap_t rghtlyrtap_state = {
+    .is_press_action = true,
+    .state = TD_NONE
+};
+
+
+/* Defines left hand layer button
+ *
+ * On tap toggles, on hold, momentary. */
+void leftlyrtap_finished(tap_dance_state_t *state, void *user_data) {
+    leftlyrtap_state.state = cur_dance(state);
+    switch (leftlyrtap_state.state) {
+        case TD_SINGLE_TAP:
+            if (layer_state_is(_NUMPAD)){
+                layer_off(_NUMPAD);
+            } else {
+                layer_on(_NUMPAD);
+            }
+            break;
+        case TD_SINGLE_HOLD:
+            layer_on(_NUMPAD);
+            break;
+        case TD_DOUBLE_TAP:
+            if (layer_state_is(_FUNC)) {
+                layer_off(_FUNC);
+            } else {
+                layer_on(_FUNC);
+            }
+            break;
+        case TD_DOUBLE_HOLD:
+            layer_on(_FUNC);
+            break;
+        default:
+            break;
+    }
+}
+
+/* Defines right hand layer button
+ *
+ * On tap toggles, on hold, momentary. */
+
+void rghtlyrtap_finished(tap_dance_state_t *state, void *user_data) {
+    rghtlyrtap_state.state = cur_dance(state);
+    switch (rghtlyrtap_state.state) {
+        case TD_SINGLE_TAP:
+            if (layer_state_is(_DIRN)){
+                layer_off(_DIRN);
+            } else {
+                layer_on(_DIRN);
+            }
+            break;
+        case TD_SINGLE_HOLD:
+            layer_on(_DIRN);
+            break;
+        case TD_DOUBLE_TAP:
+            if (layer_state_is(_SYMB)) {
+                layer_off(_SYMB);
+            } else {
+                layer_on(_SYMB);
+            }
+            break;
+        case TD_DOUBLE_HOLD:
+            layer_on(_SYMB);
+            break;
+        default:
+            break;
+    }
+}
+
+void leftlyrtap_reset(tap_dance_state_t *state, void *user_data) {
+    if (leftlyrtap_state.state == TD_SINGLE_HOLD) {
+        layer_off(_NUMPAD);
+    } else if (leftlyrtap_state.state == TD_DOUBLE_HOLD) {
+        layer_off(_FUNC);
+    }
+    leftlyrtap_state.state = TD_NONE;
+}
+
+void rghtlyrtap_reset(tap_dance_state_t *state, void *user_data) {
+    if (rghtlyrtap_state.state == TD_SINGLE_HOLD) {
+        layer_off(_DIRN);
+    } else if (rghtlyrtap_state.state == TD_DOUBLE_HOLD) {
+        layer_off(_SYMB);
+    }
+    rghtlyrtap_state.state = TD_NONE;
+}
+
+tap_dance_action_t tap_dance_actions[] = {
+    [TD_ESC_GV] = ACTION_TAP_DANCE_DOUBLE(KC_ESC, KC_GRV),
+    [LEFTLYR_TAP] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, leftlyrtap_finished, leftlyrtap_reset),
+    [RGHTLYR_TAP] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, rghtlyrtap_finished, rghtlyrtap_reset),
+};
+
+uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
+    switch (keycode) {
+        case QK_TAP_DANCE ... QK_TAP_DANCE_MAX:
+            return 275;
+        default:
+            return TAPPING_TERM;
+    }
+}
