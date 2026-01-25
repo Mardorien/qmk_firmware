@@ -7,6 +7,7 @@
 #define RALTLCK ALT_T(KC_0)
 #define OLED_DN LSFT_T(KC_1)
 #define OLED_UP ALT_T(KC_1)
+#define is_keyboard_primary() is_keyboard_master()
 
 
 #ifdef TAP_DANCE_ENABLE
@@ -57,6 +58,9 @@ combo_t key_combos[] = {
 };
 
 #endif
+
+static bool capsword;
+static bool ashift;
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     // Linux
@@ -203,6 +207,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                     }
 
                     oled_set_brightness(new_brightness);
+                    return false;
                 }
             }
             break;
@@ -221,8 +226,10 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                     }
 
                     oled_set_brightness(new_brightness);
+                    return false;
                 }
             }
+            break;
         default:
             return true;
     }
@@ -301,20 +308,21 @@ static void header_details(void) {
 
 static void print_status_narrow(void) {
 
+    ashift = get_autoshift_state();
+    capsword = is_caps_word_on();
+
     led_t led_usb_state = host_keyboard_led_state();
     oled_write_P(PSTR(" Caps"), led_usb_state.caps_lock);
     oled_write_P(PSTR("  Num"), led_usb_state.num_lock);
 
 #ifdef AUTO_SHIFT_ENABLE
 
-    bool autoshift = get_autoshift_state();
-    oled_write_P(PSTR("AShft"), autoshift);
+    oled_write_P(PSTR("AShft"), ashift);
 
 #endif
 
 #ifdef CAPS_WORD_ENABLE
 
-    bool capsword = is_caps_word_on();
     oled_write_P(PSTR("CapWd"), capsword);
 
 #endif
@@ -353,34 +361,37 @@ static void print_layers(void) {
 /* This section defines the transfer of OLED brightness to seconary side. */
 #ifdef SPLIT_TRANSACTION_IDS_USER
 
-typedef struct _master_to_slave_t {
-    uint8_t bright_data_m2s;
-} master_to_slave_t;
+typedef struct _primary_to_secondary_t {
+    uint8_t bright_data_p2s;
+    bool capsword_p2s;
+    bool ashift_p2s;
+} primary_to_secondary_t;
 
-typedef struct _slave_to_master_t {
-    uint8_t bright_data_s2m;
-} slave_to_master_t;
+typedef struct _secondary_to_primary_t {
+    uint8_t bright_data_s2p;
+    bool capsword_s2p;
+    bool ashift_s2p;
+} secondary_to_primary_t;
 
-void oled_brightness_sync_slave_handler(uint8_t in_buflen, const void* in_data, uint8_t out_buflen, void* out_data) {
-    const master_to_slave_t *m2s = (const master_to_slave_t*)in_data;
-    slave_to_master_t *s2m = (slave_to_master_t*)out_data;
-    s2m->bright_data_s2m = m2s->bright_data_m2s;
-    oled_set_brightness(m2s->bright_data_m2s);
+void oled_brightness_sync_secondary_handler(uint8_t in_buflen, const void* in_data, uint8_t out_buflen, void* out_data) {
+    const primary_to_secondary_t *p2s = (const primary_to_secondary_t*)in_data;
+    secondary_to_primary_t *s2p = (secondary_to_primary_t*)out_data;
+    s2p->bright_data_s2p = p2s->bright_data_p2s;
+    oled_set_brightness(p2s->bright_data_p2s);
 }
 
 void keyboard_post_init_user(void) {
-    transaction_register_rpc(OLED_BRIGHTNESS_SYNC, oled_brightness_sync_slave_handler);
+    transaction_register_rpc(OLED_BRIGHTNESS_SYNC, oled_brightness_sync_secondary_handler);
 }
 
 void housekeeping_task_user(void) {
-    if (is_keyboard_master()) {
-        // Interact with slave every 500ms
+    if (is_keyboard_primary()) {
+        // Interact with secondary every 500ms
         static uint32_t last_sync = 0;
         if (timer_elapsed32(last_sync) > 500) {
-            master_to_slave_t m2s = {oled_get_brightness()};
-            if(transaction_rpc_send(OLED_BRIGHTNESS_SYNC, sizeof(m2s), &m2s)) {
-                last_sync = timer_read32();
-            }
+            primary_to_secondary_t p2s = {oled_get_brightness(), capsword, ashift};
+            transaction_rpc_send(OLED_BRIGHTNESS_SYNC, sizeof(p2s.bright_data_p2s), &p2s.bright_data_p2s);
+            last_sync = timer_read32();
         }
     }
 }
@@ -389,7 +400,7 @@ void housekeeping_task_user(void) {
 
 bool oled_task_user(void) {
     header_details();
-    if (!is_keyboard_left()) {
+    if (is_keyboard_primary()) {
         print_status_narrow();
     } else {
         print_layers();
