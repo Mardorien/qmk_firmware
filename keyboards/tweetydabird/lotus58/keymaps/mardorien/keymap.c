@@ -323,18 +323,24 @@ static void print_status_narrow(void) {
 
 }
 
+typedef struct default_layers {
+    uint8_t linx_def;
+    uint8_t wind_def;
+    uint8_t game_def;
+} default_layers;
+
+static default_layers layers = {0x00000001, 0x00000002, 0x00000004};
+
 static void print_layers(void) {
-
-
     // Print Layers
     //oled_write_P(PSTR("Layer"), false);
     // Base layer printing
     oled_write_P("-",true);
-    if (default_layer_state == 0x00000001) {
+    if (default_layer_state == layers.linx_def) {
         oled_write_P(PSTR("Linx"), true);
-    } else if (default_layer_state == 0x00000002) {
+    } else if (default_layer_state == layers.wind_def) {
         oled_write_P(PSTR("Wind"), true);
-    } else if (default_layer_state == 0x00000004) {
+    } else if (default_layer_state == layers.game_def) {
         oled_write_P(PSTR("Game"), true);
     }
     oled_write_P(PSTR("|Numb"), IS_LAYER_ON(_NUMPAD_DIRN));
@@ -355,7 +361,7 @@ typedef struct _slave_to_master_t {
     uint8_t bright_data_s2m;
 } slave_to_master_t;
 
-void user_sync_a_slave_handler(uint8_t in_buflen, const void* in_data, uint8_t out_buflen, void* out_data) {
+void oled_brightness_sync_slave_handler(uint8_t in_buflen, const void* in_data, uint8_t out_buflen, void* out_data) {
     const master_to_slave_t *m2s = (const master_to_slave_t*)in_data;
     slave_to_master_t *s2m = (slave_to_master_t*)out_data;
     s2m->bright_data_s2m = m2s->bright_data_m2s;
@@ -363,7 +369,7 @@ void user_sync_a_slave_handler(uint8_t in_buflen, const void* in_data, uint8_t o
 }
 
 void keyboard_post_init_user(void) {
-    transaction_register_rpc(OLED_BRIGHTNESS_SYNC, user_sync_a_slave_handler);
+    transaction_register_rpc(OLED_BRIGHTNESS_SYNC, oled_brightness_sync_slave_handler);
 }
 
 void housekeeping_task_user(void) {
