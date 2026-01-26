@@ -7,6 +7,8 @@
 #define RALTLCK ALT_T(KC_0)
 #define OLED_DN LSFT_T(KC_1)
 #define OLED_UP ALT_T(KC_1)
+#define DEFAULT_LAYER_UP LSFT_T(KC_2)
+#define DEFAULT_LAYER_DN ALT_T(KC_2)
 #define is_keyboard_primary() is_keyboard_master()
 
 enum layer_names {
@@ -14,9 +16,11 @@ enum layer_names {
     _WINDOWS_BASE,
     _GAME_BASE,
     _NUMPAD,
-    _DIRN,
-    _FUNC,
     _SYMB,
+    _FUNC,
+    _DIRN,
+    _MEDIA,
+    _PROG,
     _SYSTEM,
 };
 
@@ -66,7 +70,7 @@ typedef enum {
     TD_SINGLE_HOLD,
     TD_DOUBLE_TAP,
     TD_DOUBLE_HOLD,
-    TD_DOUBLE_SINGLE_TAP, // Send two single taps
+    TD_DOUBLE_SINGLE_TAP,
     TD_TRIPLE_TAP,
     TD_TRIPLE_HOLD
 } td_state_t;
@@ -87,7 +91,6 @@ static bool capsword;
 static bool ashift;
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
-    // Linux
     [_LINUX_BASE] = LAYOUT(
         XXXXXXX,  KC_1,    KC_2,    KC_3,    KC_4,    KC_5,   KC_MPLY,        KC_MPLY,  KC_6,    KC_7,    KC_8,    KC_9,   KC_0,    KC_MINS,
     TD(TD_ESC_GV),KC_Q,    KC_W,    KC_F,    KC_P,    KC_B,                                     KC_J,    KC_L,    KC_U,    KC_Y,   KC_SCLN, KC_BSLS,
@@ -96,7 +99,6 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                                     KC_LGUI, TD(LEFTLYR_TAP),   KC_LALT, LSFT_T(KC_SPC), RSFT_T(KC_ENT),KC_RALT, TD(RGHTLYR_TAP), RGUI_T(KC_BSPC)
     ),
 
-    // Windows
     [_WINDOWS_BASE] = LAYOUT(
         XXXXXXX,  KC_1,    KC_2,    KC_3,    KC_4,    KC_5,   KC_MPLY,        KC_MPLY,  KC_6,    KC_7,    KC_8,    KC_9,   KC_0,    KC_MINS,
         QK_GESC,  KC_Q,    KC_W,    KC_F,    KC_P,    KC_B,                                     KC_J,    KC_L,    KC_U,    KC_Y,   KC_SCLN, KC_BSLS,
@@ -105,7 +107,6 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                                     KC_LWIN, TD(LEFTLYR_TAP),   KC_LALT, LSFT_T(KC_SPC), RSFT_T(KC_ENT),   KC_RALT, TD(RGHTLYR_TAP), RWIN_T(KC_BSPC)
     ),
 
-    // Game
     [_GAME_BASE] = LAYOUT(
         XXXXXXX,   KC_1,    KC_2,    KC_3,    KC_4,    KC_5,  KC_MPLY,        KC_MPLY, KC_6,    KC_7,    KC_8,    KC_9,    KC_0,    KC_MINS,
         QK_GESC,   KC_T,    KC_Q,    KC_W,    KC_E,    KC_R,                                   KC_Y,    KC_U,    KC_I,    KC_O,    KC_P,    KC_BSLS,
@@ -114,24 +115,22 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                                      KC_LGUI, TD(LEFTLYR_TAP),  KC_LALT, LSFT_T(KC_SPC), RSFT_T(KC_ENT),   KC_RALT, TD(RGHTLYR_TAP), RGUI_T(KC_BSPC)
     ),
 
-    // Numpad & arrow keys
     [_NUMPAD] = LAYOUT(
         _______, _______, _______, _______, _______, _______, _______,        _______, _______, _______, _______, _______, _______, _______,
         _______, _______, _______, _______, _______, _______,                                  UM(GBP), KC_KP_7, KC_KP_8, KC_KP_9, KC_PDOT, _______,
         _______, _______, _______, _______, _______, _______,                                  KC_AMPR, KC_KP_4, KC_KP_5, KC_KP_6, KC_COLN, _______,
         _______, _______, _______, _______, _______, _______, KC_NUM,         _______, KC_KP_0, KC_KP_1, KC_KP_2, KC_KP_3, KC_DLR,  _______,
-                                               _______, _______, _______, _______,        _______, RALTLCK, _______, _______
-    ),
-
-    [_DIRN] = LAYOUT(
-        _______, _______, _______, _______, _______, _______, _______,        _______, _______, _______, _______, _______, _______, _______,
-        KC_TAB,  KC_LPRN, KC_UP,   KC_RPRN, KC_CIRC, XXXXXXX,                                  _______, _______, _______, _______, _______, _______,
-        KC_DEL,  KC_LEFT, KC_DOWN, KC_RIGHT,KC_LBRC, KC_RBRC,                                  _______, _______, _______, _______, _______, _______,
-        _______, KC_PMNS, KC_PAST, KC_PPLS, KC_PSLS, KC_EQL,  _______,        _______, _______, _______, _______, _______, _______,  _______,
                                                _______, _______, LALTLCK, _______,        _______, _______, _______, _______
     ),
 
-    // Numline symbols & funcs
+    [_SYMB] = LAYOUT(
+        _______, _______, _______, _______, _______, _______, _______,        _______, _______, _______, _______, _______, _______, _______,
+        KC_INS,  KC_CIRC, KC_AMPR, KC_ASTR, KC_LPRN, KC_RPRN,                                  _______, _______, _______, _______, _______, _______,
+        KC_DEL,  KC_EXLM, KC_AT,   KC_HASH, KC_DLR,  KC_PERC,                                  _______, _______, _______, _______, _______, _______,
+        _______, KC_MINS, KC_CUT,  KC_COPY, KC_FIND, KC_PSTE, KC_CAPS,        _______, _______, _______, _______, _______, _______, _______,
+                                          OSL(_SYSTEM), _______, _______, _______,        _______, RALTLCK, _______, _______
+    ),
+
     [_FUNC] = LAYOUT(
         _______, _______, _______, _______, _______, _______, _______,        _______, _______, _______, _______, _______, _______, _______,
         _______, _______, _______, _______, _______, _______,                                  _______, KC_F1,   KC_F2,   KC_F3,   KC_F4, _______,
@@ -140,20 +139,35 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                                                _______, _______, LALTLCK, _______,        _______, _______, _______, _______
     ),
 
-    [_SYMB] = LAYOUT(
+    [_DIRN] = LAYOUT(
         _______, _______, _______, _______, _______, _______, _______,        _______, _______, _______, _______, _______, _______, _______,
-        _______, KC_CIRC, KC_AMPR, KC_ASTR, KC_LPRN, KC_RPRN,                                  _______, _______, _______, _______, _______, _______,
-        _______, KC_EXLM, KC_AT,   KC_HASH, KC_DLR,  KC_PERC,                                  _______, _______, _______, _______, _______, _______,
-        _______, KC_MINS, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, KC_CAPS,        _______, _______, _______, _______, _______, _______, _______,
-                                          OSL(_SYSTEM), _______, LALTLCK, _______,        _______, _______, _______, _______
+        KC_TAB,  KC_LPRN, KC_UP,   KC_RPRN, KC_CIRC, XXXXXXX,                                  _______, _______, _______, _______, _______, _______,
+        KC_DEL,  KC_LEFT, KC_DOWN, KC_RIGHT,KC_LBRC, KC_RBRC,                                  _______, _______, _______, _______, _______, _______,
+        _______, KC_PMNS, KC_PAST, KC_PPLS, KC_PSLS, KC_EQL,  _______,        _______, _______, _______, _______, _______, _______,  _______,
+                                               _______, _______, _______, _______,        _______, RALTLCK, _______, _______
     ),
 
-    // System functions
+    [_PROG] = LAYOUT(
+        _______, _______, _______, _______, _______, _______, _______,        _______, _______, _______, _______, _______, _______, _______,
+        _______, _______, _______, _______, _______, _______,                                  PB_1,    PB_2,    PB_3,    PB_4,    PB_5,    PB_6,
+        _______, _______, _______, _______, _______, _______,                                  PB_7,    PB_8,    PB_9,    PB_10,   PB_11,   PB_12,
+        _______, _______, _______, _______, _______, _______, _______,        _______, PB_13,   PB_14,   PB_15,   PB_16,   PB_17,   PB_18,
+                                               _______, _______, LALTLCK, _______,        _______, _______, _______, _______
+    ),
+
+    [_MEDIA] = LAYOUT(
+        _______, _______, _______, _______, _______, _______, _______,        _______, _______, _______, _______, _______, _______, _______,
+        _______, _______, KC_MPRV, _______, KC_MNXT, _______,                                  _______, _______, _______, _______, _______, _______,
+        _______, _______, KC_MRWD, KC_MPLY, KC_MFFD, _______,                                  _______, _______, _______, _______, _______, _______,
+        _______, _______, _______, KC_MSTP, _______, _______, _______,        KC_MUTE, _______, _______, _______,  _______,  _______, _______,
+                                               _______, _______, _______, _______,        _______, RALTLCK, _______, _______
+    ),
+
     [_SYSTEM] = LAYOUT(
         XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, _______,        _______, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
-        QK_BOOT, XXXXXXX, XXXXXXX, OLED_UP, NK_TOGG, AC_TOGG,                                  XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
-        QK_RBT,  XXXXXXX, XXXXXXX, OLED_DN, XXXXXXX, KC_CAPS,                                  XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
-        EE_CLR,  XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,        XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
+        QK_BOOT, KC_PWR,  XXXXXXX, OLED_UP, NK_TOGG, AC_TOGG,                                  XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
+        QK_RBT,  KC_WAKE, XXXXXXX, OLED_DN, XXXXXXX, KC_CAPS,                                  XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
+        EE_CLR,  KC_SLEP, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,        XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
                                                _______, _______, _______, _______,        _______, RALTLCK, _______, _______
     )
 };
@@ -168,15 +182,25 @@ const uint16_t PROGMEM encoder_map[][NUM_ENCODERS][NUM_DIRECTIONS] = {
     [_DIRN]           = { ENCODER_CCW_CW(MS_WHLD, MS_WHLU), ENCODER_CCW_CW(MS_WHLD, MS_WHLU) },
     [_FUNC]           = { ENCODER_CCW_CW(KC_TRNS, KC_TRNS), ENCODER_CCW_CW(KC_TRNS, KC_TRNS) },
     [_SYMB]           = { ENCODER_CCW_CW(KC_TRNS, KC_TRNS), ENCODER_CCW_CW(KC_TRNS, KC_TRNS) },
-    [_SYSTEM]         = { ENCODER_CCW_CW(PB_32,   PB_31),   ENCODER_CCW_CW(PB_32,   PB_31)   }
+    [_PROG]           = { ENCODER_CCW_CW(KC_TRNS, KC_TRNS), ENCODER_CCW_CW(KC_TRNS, KC_TRNS) },
+    [_MEDIA]          = { ENCODER_CCW_CW(KC_VOLD, KC_VOLU), ENCODER_CCW_CW(KC_VOLD, KC_VOLU) },
+    [_SYSTEM]         = { ENCODER_CCW_CW(DEFAULT_LAYER_UP, DEFAULT_LAYER_DN), ENCODER_CCW_CW(DEFAULT_LAYER_UP, DEFAULT_LAYER_DN) }
 };
 
 #endif
 
+typedef struct default_layers {
+    uint8_t linx_def;
+    uint8_t wind_def;
+    uint8_t game_def;
+} default_layers;
+
+static default_layers layers = {0x00000001, 0x00000002, 0x00000004};
+
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
     switch (keycode) {
-        case PB_31:
+        case DEFAULT_LAYER_DN:
             if (record->event.pressed) {
                 //Change layer state down based on default layer state
                 switch (default_layer_state) {
@@ -188,7 +212,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                         //In Layer 1
                         set_single_default_layer(_LINUX_BASE);
                         break;
-                    default:
+                    case 4:
                         //In Layer 2
                         set_single_default_layer(_WINDOWS_BASE);
                         break;
@@ -196,7 +220,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 return false;
                 break;
             }
-        case PB_32:
+        case DEFAULT_LAYER_UP:
             if (record->event.pressed) {
                 //Change layer state down based on default layer state
                 switch (default_layer_state) {
@@ -208,7 +232,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                         //In Layer 1
                         set_single_default_layer(_GAME_BASE);
                         break;
-                    default:
+                    case 4:
                         //In Layer 2
                         set_single_default_layer(_LINUX_BASE);
                         break;
@@ -269,6 +293,54 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
                     oled_set_brightness(new_brightness);
                     return false;
+                }
+            }
+            break;
+        case KC_CUT:
+            if (record->event.pressed) {
+                if (default_layer_state == layers.linx_def) {
+                    return true;
+                } else if (default_layer_state == layers.wind_def) {
+                    SEND_STRING(SS_LCTL("x"));
+                    return false;
+                } else {
+                    return true;
+                }
+            }
+            break;
+        case KC_COPY:
+            if (record->event.pressed) {
+                if (default_layer_state == layers.linx_def) {
+                    return true;
+                } else if (default_layer_state == layers.wind_def) {
+                    SEND_STRING(SS_LCTL("c"));
+                    return false;
+                } else {
+                    return true;
+                }
+            }
+            break;
+        case KC_FIND:
+            if (record->event.pressed) {
+                if (default_layer_state == layers.linx_def) {
+                    return true;
+                } else if (default_layer_state == layers.wind_def) {
+                    SEND_STRING(SS_LCTL("f"));
+                    return false;
+                } else {
+                    return true;
+                }
+            }
+            break;
+        case KC_PSTE:
+            if (record->event.pressed) {
+                if (default_layer_state == layers.linx_def) {
+                    return true;
+                } else if (default_layer_state == layers.wind_def) {
+                    SEND_STRING(SS_LCTL("v"));
+                    return false;
+                } else {
+                    return true;
                 }
             }
             break;
@@ -373,14 +445,6 @@ static void print_status_narrow(void) {
 
 }
 
-typedef struct default_layers {
-    uint8_t linx_def;
-    uint8_t wind_def;
-    uint8_t game_def;
-} default_layers;
-
-static default_layers layers = {0x00000001, 0x00000002, 0x00000004};
-
 static void print_layers(void) {
     // Print Layers
     //oled_write_P(PSTR("Layer"), false);
@@ -394,9 +458,11 @@ static void print_layers(void) {
         oled_write_P(PSTR("Game"), true);
     }
     oled_write_P(PSTR(">Numb"), IS_LAYER_ON(_NUMPAD));
-    oled_write_P(PSTR("Dirn<"), IS_LAYER_ON(_DIRN));
-    oled_write_P(PSTR(">Func"), IS_LAYER_ON(_FUNC));
     oled_write_P(PSTR("Symb<"), IS_LAYER_ON(_SYMB));
+    oled_write_P(PSTR(">Func"), IS_LAYER_ON(_FUNC));
+    oled_write_P(PSTR("Dirn<"), IS_LAYER_ON(_DIRN));
+    oled_write_P(PSTR(">Prog"), IS_LAYER_ON(_PROG));
+    oled_write_P(PSTR("Mdia<"), IS_LAYER_ON(_MEDIA));
     oled_write_P(PSTR(">Sys<"), IS_LAYER_ON(_SYSTEM));
     spacer_line();
 }
@@ -465,6 +531,9 @@ td_state_t cur_dance(tap_dance_state_t *state) {
     } else if (state->count == 2) {
         if (state->pressed) return TD_DOUBLE_HOLD;
         else return TD_DOUBLE_TAP;
+    } else if (state->count == 3) {
+        if (state->pressed) return TD_TRIPLE_HOLD;
+        else return TD_TRIPLE_TAP;
     }
     else return TD_UNKNOWN;
 }
@@ -506,6 +575,16 @@ void leftlyrtap_finished(tap_dance_state_t *state, void *user_data) {
         case TD_DOUBLE_HOLD:
             layer_on(_FUNC);
             break;
+        case TD_TRIPLE_TAP:
+            if (layer_state_is(_PROG)) {
+                layer_off(_PROG);
+            } else {
+                layer_on(_PROG);
+            }
+            break;
+        case TD_TRIPLE_HOLD:
+            layer_on(_PROG);
+            break;
         default:
             break;
     }
@@ -519,24 +598,34 @@ void rghtlyrtap_finished(tap_dance_state_t *state, void *user_data) {
     rghtlyrtap_state.state = cur_dance(state);
     switch (rghtlyrtap_state.state) {
         case TD_SINGLE_TAP:
-            if (layer_state_is(_DIRN)){
-                layer_off(_DIRN);
-            } else {
-                layer_on(_DIRN);
-            }
-            break;
-        case TD_SINGLE_HOLD:
-            layer_on(_DIRN);
-            break;
-        case TD_DOUBLE_TAP:
-            if (layer_state_is(_SYMB)) {
+            if (layer_state_is(_SYMB)){
                 layer_off(_SYMB);
             } else {
                 layer_on(_SYMB);
             }
             break;
-        case TD_DOUBLE_HOLD:
+        case TD_SINGLE_HOLD:
             layer_on(_SYMB);
+            break;
+        case TD_DOUBLE_TAP:
+            if (layer_state_is(_DIRN)) {
+                layer_off(_DIRN);
+            } else {
+                layer_on(_DIRN);
+            }
+            break;
+        case TD_DOUBLE_HOLD:
+            layer_on(_DIRN);
+            break;
+        case TD_TRIPLE_TAP:
+            if (layer_state_is(_MEDIA)) {
+                layer_off(_MEDIA);
+            } else {
+                layer_on(_MEDIA);
+            }
+            break;
+        case TD_TRIPLE_HOLD:
+            layer_on(_MEDIA);
             break;
         default:
             break;
@@ -548,15 +637,19 @@ void leftlyrtap_reset(tap_dance_state_t *state, void *user_data) {
         layer_off(_NUMPAD);
     } else if (leftlyrtap_state.state == TD_DOUBLE_HOLD) {
         layer_off(_FUNC);
+    } else if (leftlyrtap_state.state == TD_TRIPLE_HOLD) {
+        layer_off(_PROG);
     }
     leftlyrtap_state.state = TD_NONE;
 }
 
 void rghtlyrtap_reset(tap_dance_state_t *state, void *user_data) {
     if (rghtlyrtap_state.state == TD_SINGLE_HOLD) {
-        layer_off(_DIRN);
-    } else if (rghtlyrtap_state.state == TD_DOUBLE_HOLD) {
         layer_off(_SYMB);
+    } else if (rghtlyrtap_state.state == TD_DOUBLE_HOLD) {
+        layer_off(_DIRN);
+    } else if (leftlyrtap_state.state == TD_TRIPLE_HOLD) {
+        layer_off(_MEDIA);
     }
     rghtlyrtap_state.state = TD_NONE;
 }
