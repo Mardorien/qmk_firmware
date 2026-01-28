@@ -117,9 +117,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
     [_NUMPAD] = LAYOUT(
         _______, _______, _______, _______, _______, _______, _______,        _______, _______, _______, _______, _______, _______, _______,
-        _______, _______, _______, _______, _______, _______,                                  UM(GBP), KC_KP_7, KC_KP_8, KC_KP_9, KC_PDOT, _______,
-        _______, _______, _______, _______, _______, _______,                                  KC_AMPR, KC_KP_4, KC_KP_5, KC_KP_6, KC_COLN, _______,
-        _______, _______, _______, _______, _______, _______, KC_NUM,         _______, KC_KP_0, KC_KP_1, KC_KP_2, KC_KP_3, KC_DLR,  _______,
+        _______, _______, _______, _______, _______, _______,                                  UM(GBP), KC_KP_7, KC_KP_8, KC_KP_9, KC_PAST, _______,
+        _______, _______, _______, _______, _______, _______,                                  KC_PMNS, KC_KP_4, KC_KP_5, KC_KP_6, KC_PPLS, KC_EQL,
+        _______, _______, _______, _______, _______, _______, KC_NUM,         _______, KC_KP_0, KC_KP_1, KC_KP_2, KC_KP_3, KC_PSLS,  _______,
                                                _______, _______, LALTLCK, _______,        _______, _______, _______, _______
     ),
 
@@ -128,22 +128,22 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         KC_INS,  KC_CIRC, KC_AMPR, KC_ASTR, KC_LPRN, KC_RPRN,                                  _______, _______, _______, _______, _______, _______,
         KC_DEL,  KC_EXLM, KC_AT,   KC_HASH, KC_DLR,  KC_PERC,                                  _______, _______, _______, _______, _______, _______,
         _______, KC_MINS, KC_CUT,  KC_COPY, KC_FIND, KC_PSTE, KC_CAPS,        _______, _______, _______, _______, _______, _______, _______,
-                                          OSL(_SYSTEM), _______, _______, _______,        _______, RALTLCK, _______, _______
+                                          OSL(_SYSTEM), _______, SH_TOGG, _______,        _______, RALTLCK, _______, _______
     ),
 
     [_FUNC] = LAYOUT(
         _______, _______, _______, _______, _______, _______, _______,        _______, _______, _______, _______, _______, _______, _______,
-        _______, _______, _______, _______, _______, _______,                                  _______, KC_F1,   KC_F2,   KC_F3,   KC_F4, _______,
-        _______, _______, _______, _______, _______, _______,                                  _______, KC_F5,   KC_F6,   KC_F7,   KC_F8, _______,
-        _______, _______, _______, _______, _______, _______, KC_CAPS,        _______, _______, KC_F9,   KC_F10,  KC_F11,  KC_F12, _______,
+        _______, _______, _______, _______, _______, _______,                                  KC_6,    KC_F1,   KC_F2,   KC_F3,   KC_F4, _______,
+        _______, _______, _______, _______, _______, _______,                                  KC_7,    KC_F5,   KC_F6,   KC_F7,   KC_F8,    KC_0,
+        _______, _______, _______, _______, _______, _______, KC_CAPS,        _______, KC_8,    KC_F9,   KC_F10,  KC_F11,  KC_F12,    KC_9,
                                                _______, _______, LALTLCK, _______,        _______, _______, _______, _______
     ),
 
     [_DIRN] = LAYOUT(
         _______, _______, _______, _______, _______, _______, _______,        _______, _______, _______, _______, _______, _______, _______,
-        KC_TAB,  KC_LPRN, KC_UP,   KC_RPRN, KC_CIRC, XXXXXXX,                                  _______, _______, _______, _______, _______, _______,
-        KC_DEL,  KC_LEFT, KC_DOWN, KC_RIGHT,KC_LBRC, KC_RBRC,                                  _______, _______, _______, _______, _______, _______,
-        _______, KC_PMNS, KC_PAST, KC_PPLS, KC_PSLS, KC_EQL,  _______,        _______, _______, _______, _______, _______, _______,  _______,
+        KC_TAB,  KC_LPRN, KC_LBRC, KC_UP,   KC_RBRC, XXXXXXX,                                  _______, _______, _______, _______, _______, _______,
+        KC_DEL,  XXXXXXX, KC_LEFT, KC_DOWN, KC_RGHT, XXXXXXX,                                  _______, _______, _______, _______, _______, _______,
+        _______, KC_1,    KC_2,    KC_3,    KC_4,    KC_5,    _______,        _______, _______, _______, _______, _______, _______,  _______,
                                                _______, _______, _______, _______,        _______, RALTLCK, _______, _______
     ),
 
@@ -171,6 +171,31 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                                                _______, _______, _______, _______,        _______, RALTLCK, _______, _______
     )
 };
+
+#ifdef SWAP_HANDS_ENABLE
+
+const keypos_t PROGMEM hand_swap_config[MATRIX_ROWS][MATRIX_COLS] = {
+    //Hand 1
+    {{0,5}, {1,5}, {2,5}, {3,5}, {4,5}, {5,5}},
+    {{0,6}, {1,6}, {2,6}, {3,6}, {4,6}, {5,6}},
+    {{0,7}, {1,7}, {2,7}, {3,7}, {4,7}, {5,7}},
+    {{0,8}, {1,8}, {2,8}, {3,8}, {4,8}, {5,8}},
+    {{0,9}, {1,9}, {2,9}, {3,9}, {4,9}, {5,9}},
+    //Hand 2
+    {{0,0}, {1,0}, {2,0}, {3,0}, {4,0}, {5,0}},
+    {{0,1}, {1,1}, {2,1}, {3,1}, {4,1}, {5,1}},
+    {{0,2}, {1,2}, {2,2}, {3,2}, {4,2}, {5,2}},
+    {{0,3}, {1,3}, {2,3}, {3,3}, {4,3}, {5,3}},
+    {{0,4}, {1,4}, {2,4}, {3,4}, {4,4}, {5,4}}
+};
+
+#ifdef ENCODER_MAP_ENABLE
+
+const uint8_t PROGMEM encoder_hand_swap_config[NUM_ENCODERS] = { 0, 1 };
+
+#endif
+
+#endif
 
 #ifdef ENCODER_MAP_ENABLE
 
@@ -442,7 +467,11 @@ static void print_status_narrow(void) {
 #endif
 
     spacer_line();
-
+    if (is_swap_hands_on()) {
+        oled_write_P(PSTR("SWAP!"), true);
+    } else {
+        oled_write_P(PSTR("     "), false);
+    }
 }
 
 static void print_layers(void) {
@@ -465,6 +494,11 @@ static void print_layers(void) {
     oled_write_P(PSTR("Mdia<"), IS_LAYER_ON(_MEDIA));
     oled_write_P(PSTR(">Sys<"), IS_LAYER_ON(_SYSTEM));
     spacer_line();
+    if (is_swap_hands_on()) {
+        oled_write_P(PSTR("SWAP!"),true);
+    } else {
+        oled_write_P(PSTR("     "), false);
+    }
 }
 
 
@@ -648,7 +682,7 @@ void rghtlyrtap_reset(tap_dance_state_t *state, void *user_data) {
         layer_off(_SYMB);
     } else if (rghtlyrtap_state.state == TD_DOUBLE_HOLD) {
         layer_off(_DIRN);
-    } else if (leftlyrtap_state.state == TD_TRIPLE_HOLD) {
+    } else if (rghtlyrtap_state.state == TD_TRIPLE_HOLD) {
         layer_off(_MEDIA);
     }
     rghtlyrtap_state.state = TD_NONE;
